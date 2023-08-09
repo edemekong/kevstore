@@ -10,6 +10,14 @@ class CartState extends ChangeNotifier {
     return cartItems.map((e) => e.quantity).reduce((value, element) => value + element);
   }
 
+  int getQuantityFromCartItem(String id) {
+    try {
+      return cartItems.firstWhere((element) => element.productId == id).quantity;
+    } catch (e) {
+      return 0;
+    }
+  }
+
   addToCart(Product product) {
     final productAlreadyInCart = cartItems.map((e) => e.productId).contains(product.id);
     if (productAlreadyInCart) {
@@ -18,6 +26,7 @@ class CartState extends ChangeNotifier {
 
       final newItem = oldItem.copyWith(
         quantity: oldItem.quantity + 1,
+        product: product,
       );
       print(newItem.quantity);
       cartItems.add(newItem);
@@ -28,6 +37,7 @@ class CartState extends ChangeNotifier {
     final newCartItem = CartItem(
       productId: product.id,
       quantity: 1,
+      product: product,
     );
 
     cartItems.add(newCartItem);

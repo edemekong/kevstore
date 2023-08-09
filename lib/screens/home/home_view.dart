@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kevshop/data/app_products.dart';
 import 'package:kevshop/screens/cart/cart_view.dart';
+import 'package:kevshop/screens/product_details/product_detail.dart';
 import 'package:provider/provider.dart';
 
 import '../../states/cart_state.dart';
@@ -11,6 +12,7 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cartState = Provider.of<CartState>(context);
+
     final cart = cartState.totalCartQuantity;
 
     final products = AppProducts.products;
@@ -27,37 +29,55 @@ class HomeView extends StatelessWidget {
           ),
           itemBuilder: (context, index) {
             final product = products[index];
-            return GridTile(
-              child: Container(
-                color: Colors.grey[100],
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 15),
-                      Expanded(
-                        child: Image.network(
-                          product.image,
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      Text(
-                        product.name,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 15),
-                      InkWell(
-                        onTap: () => cartState.addToCart(product),
-                        child: const Text(
-                          "SHOP NOW",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            decoration: TextDecoration.underline,
+            var quantityFromCartItem = cartState.getQuantityFromCartItem(product.id);
+            return InkWell(
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => ProductDetailView(
+                        productId: product.id,
+                      ))),
+              child: GridTile(
+                child: Container(
+                  color: Colors.grey[100],
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 15),
+                        Expanded(
+                          child: Image.network(
+                            product.image,
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 15),
-                    ],
+                        const SizedBox(height: 15),
+                        Text(
+                          product.name,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 15),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            InkWell(
+                              onTap: () => cartState.addToCart(product),
+                              child: const Text(
+                                "SHOP NOW",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                            if (quantityFromCartItem > 0) ...[
+                              const SizedBox(width: 15),
+                              CircleAvatar(
+                                child: Text(quantityFromCartItem.toString()),
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 15),
+                      ],
+                    ),
                   ),
                 ),
               ),
