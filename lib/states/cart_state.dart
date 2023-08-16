@@ -18,22 +18,23 @@ class CartState extends ChangeNotifier {
     }
   }
 
-  addToCart(Product product) {
-    final productAlreadyInCart = cartItems.map((e) => e.productId).contains(product.id);
-    if (productAlreadyInCart) {
-      final oldItem = cartItems.firstWhere((element) => element.productId == product.id);
-      cartItems.removeWhere((element) => element.productId == product.id);
+  void addToCart(Product product) {
+    final index = cartItems.indexWhere((element) => element.productId == product.id);
+
+    if (index != -1) {
+      // productAlreadyInCart
+      final CartItem oldItem = cartItems.removeAt(index);
 
       final newItem = oldItem.copyWith(
         quantity: oldItem.quantity + 1,
         product: product,
       );
-      print(newItem.quantity);
-      cartItems.add(newItem);
-      notifyListeners();
+      cartItems.insert(index, newItem);
 
+      notifyListeners();
       return;
     }
+
     final newCartItem = CartItem(
       productId: product.id,
       quantity: 1,
@@ -41,6 +42,24 @@ class CartState extends ChangeNotifier {
     );
 
     cartItems.add(newCartItem);
+    notifyListeners();
+  }
+
+  void removeFromCart(Product product, {bool forceRemove = false}) {
+    final index = cartItems.indexWhere((element) => element.productId == product.id);
+
+    if (index != -1) {
+      final CartItem oldItem = cartItems.removeAt(index);
+
+      if (oldItem.quantity > 1 && !forceRemove) {
+        final CartItem newCartItem = oldItem.copyWith(
+          quantity: oldItem.quantity - 1,
+          product: product,
+        );
+
+        cartItems.insert(index, newCartItem);
+      }
+    }
 
     notifyListeners();
   }
